@@ -57,7 +57,7 @@ class Recommender:
         """get a list of new songs the user has never listened to
         according to the artist of a song"""
 
-        artist_songs: np.ndarray = self.get_songs_from_artist(song_id)
+        artist_songs: list = list(self.get_songs_from_artist(song_id))
 
         similar_users_df: pd.DataFrame
         similar_users_df = self.sum_dist_df.loc[
@@ -67,9 +67,10 @@ class Recommender:
         songs_not_from_artist = list(
             set(similar_users_df.columns) - set(artist_songs)
         )
-        similar_users_df[songs_not_from_artist] = 0
 
-        similar_users_df["weight"] = similar_users_df.sum(axis=1)
+        similar_users_df["weight"] = similar_users_df[artist_songs].sum(
+            axis=1,
+        )
         similar_users_df = similar_users_df.multiply(
             similar_users_df["weight"] / len(artist_songs), axis="index"
         )
@@ -78,6 +79,7 @@ class Recommender:
         similar_users_df = similar_users_df.drop(song_list, axis=1)
 
         recommended: pd.Series = similar_users_df.sum()
+        recommended.loc[songs_not_from_artist] = 0
 
         is_from_artist: pd.Series = pd.Series(
             [1 if x in artist_songs else 0 for x in recommended.index],
@@ -89,9 +91,9 @@ class Recommender:
     def find_song_data(self, song_id: str) -> tuple[str, str]:
         """get a song's title and artist from an ID"""
 
-        song = self.df.loc[self.df.song == song_id].sample()
+        song = self.df.loc[self.df.song == song_id].iloc[0]
 
-        return song.title, song.artist_name
+        return song["title"], song["artist_name"]
 
     def recommend(
             self,
