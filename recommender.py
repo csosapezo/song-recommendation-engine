@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+pd.options.mode.chained_assignment = None
+
 
 @attrs.define
 class Recommender:
@@ -79,6 +81,11 @@ class Recommender:
         similar_users_df = similar_users_df.drop(song_list, axis=1)
 
         recommended: pd.Series = similar_users_df.sum()
+
+        songs_not_from_artist = list(
+            set(songs_not_from_artist) - set(song_list)
+        )
+
         recommended.loc[songs_not_from_artist] = 0
 
         is_from_artist: pd.Series = pd.Series(
@@ -100,7 +107,7 @@ class Recommender:
             song_id: str,
             song_list: list[str],
             num_recommendation: int = 1,
-            ) -> list[tuple[str, str, str, float]]:
+            ) -> list[tuple[str, str, str, float, str]]:
         """recommend new songs based on a song the user has listened"""
 
         recommended_by_song: pd.Series = self.recommend_from_song(
@@ -122,7 +129,7 @@ class Recommender:
         ).sort_values(ascending=False).head(num_recommendation)
 
         top_recommendations: list = [
-            (idx, *self.find_song_data(idx), rec.loc[idx])
+            (idx, *self.find_song_data(idx), rec.loc[idx], song_id)
             for idx in rec.index
         ]
 
