@@ -64,3 +64,7 @@ def recommendation():
         song_list=list(favourite_songs),
         recommendations=recommendations,
     )
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
