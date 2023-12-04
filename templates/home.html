@@ -1,0 +1,45 @@
+{% set artists = form.artists(**{"hx-post": request.full_path})%}
+{% set songs = form.songs(**{"hx-swap-oob":"true"}) %}
+
+{% if "HX-Request" in request.headers %}
+    {{artists}}
+    {{songs}}
+{% else %}
+
+<!doctype html>
+<html>
+
+<body> <h1>Select your favourite songs</h1>
+    <form method="post">
+      {{artists}}
+      {{songs}}
+      {{form.submit()}}
+      {{form.clear()}}
+      {{form.analyse()}}
+    </form>
+    <br/>
+    <h1>Favourite songs</h1>
+
+    {% for song in song_list: %}
+     <tr>
+       <td>{{song[1]}} - {{song[2]}}</td>
+       <br/>
+     </tr>
+    {% endfor %}
+
+    <h1>Recommendations</h1>
+
+    {% for song, rcm_songs in recommendations.items(): %}
+        <h2>Because you like {{song[2]}} by {{song[1]}}</h2>
+            {% for r_song in rcm_songs: %}
+                <td><b>{{r_song[1]}}</b> by {{r_song[2]}}</td>
+                <br/>
+            {% endfor %}
+    {% endfor %}
+    
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+</body>
+
+</html>
+
+{% endif %}
