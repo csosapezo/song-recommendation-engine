@@ -16,7 +16,7 @@ def get_recommendation_from_user(
     rcm = Recommender()
     rcm.get_sum_song_distribution()
 
-    song_list: list[str] = get_songs_from_user(song_id, rcm.df)[:5]
+    song_list: list[str] = get_songs_from_user(song_id, rcm.df)
     recommended: list[tuple[str, str, str, float, str]] = []
 
     for song in song_list:
